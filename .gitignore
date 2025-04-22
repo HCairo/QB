@@ -1,0 +1,12 @@
+# Ignorer les fichiers Python compilés
+*.pyc
+__pycache__/
+
+# Node modules
+qb-front/node_modules/
+
+# Fichiers de lock Node.js
+package-lock.json
+
+# Fichiers spécifiques
+_metadata.json
