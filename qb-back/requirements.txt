@@ -10,3 +10,5 @@ passlib
 psycopg2-binary
 argon2-cffi
 python-jose[cryptography]
+stripe
+python-dotenv

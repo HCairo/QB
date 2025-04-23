@@ -1,3 +1,4 @@
+import stripe as stripe_lib
 from fastapi import APIRouter, HTTPException, Depends, Path
 from app.schemas.user import UserIn, UserOut
 from app.schemas.invoice import InvoiceIn, InvoiceOut, InvoiceUpdate
@@ -6,6 +7,7 @@ from app.crud.operations import create_user, create_invoice, get_invoices_by_use
 from app.db.models import get_user_by_email, invoices
 from app.db.database import database
 from app.security.auth import create_access_token, get_current_user
+from app.config import stripe
 
 router = APIRouter()
 
@@ -62,3 +64,30 @@ async def delete_invoice(invoice_id: int, current_user: dict = Depends(get_curre
     )
     await database.execute(query)
     return {"message": "Invoice deleted"}
+
+@router.post("/create-checkout-session")
+async def create_checkout_session():
+    try:
+        # Créer une session de paiement Stripe
+        checkout_session = stripe_lib.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[
+                {
+                    'price_data': {
+                        'currency': 'usd',
+                        'product_data': {
+                            'name': 'Invoice Payment',
+                        },
+                        'unit_amount': 5000,  # Montant en cents (ex : 5000 = 50.00 USD)
+                    },
+                    'quantity': 1,
+                },
+            ],
+            mode='payment',
+            success_url='http://localhost:5173/success',  # URL valide pour le succès
+            cancel_url='http://localhost:5173/cancel',   # URL valide pour l'annulation
+        )
+        return {"sessionId": checkout_session.id} # Rediriger vers l'URL de la session
+
+    except stripe_lib.error.StripeError as e:
+        raise HTTPException(status_code=400, detail=f"Stripe Error: {e.user_message}")

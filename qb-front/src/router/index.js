@@ -6,6 +6,7 @@ import Home from '../pages/Home.vue'
 import Layout from '../layout/Layout.vue'
 import CreateInvoice from '../pages/CreateInvoice.vue'
 import InvoiceList from '../pages/InvoiceList.vue'
+import StripePayment from '../pages/StripePayment.vue'
 
 const isAuthenticated = () => !!localStorage.getItem('token')
 
@@ -42,6 +43,13 @@ const routes = [
       { path: 'invoices/new', name: 'CreateInvoice', component: CreateInvoice },
       { path: 'invoices', name: 'InvoiceList', component: InvoiceList }
     ]
+  },
+  {
+    path: '/payment',
+    component: StripePayment,
+    beforeEnter: () => {
+      if (!isAuthenticated()) return '/login'
+    }
   }
 ]
 

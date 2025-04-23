@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from app.db.database import database, metadata, engine
 from app.api.routes import router
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+from app.config import stripe
 
 app = FastAPI()
 
@@ -13,7 +15,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 @app.on_event("startup")
 async def startup():
