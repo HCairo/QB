@@ -29,6 +29,7 @@
 
 - [Docker](https://www.docker.com/)
 - [Docker Compose](https://docs.docker.com/compose/)
+- [npm](https://www.npmjs.com/)
 
 ### Étapes
 
