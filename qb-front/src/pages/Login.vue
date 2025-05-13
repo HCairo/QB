@@ -37,6 +37,9 @@
           >
             Se connecter
           </button>
+          <button @click="loginWithGoogle" class="w-full bg-red-500 text-white px-4 py-2 rounded mt-4">
+          🖥️ Se connecter avec Google
+          </button>
           <p v-if="error" class="text-red-600">{{ error }}</p>
         </form>
       </div>
@@ -53,23 +56,42 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../utils/api'
+import { useToast } from 'vue-toastification'
 
 const email = ref('')
 const password = ref('')
 const error = ref('')
 const router = useRouter()
+const toast = useToast()
 
 const login = async () => {
   try {
-    const response = await api.post('/login', {
+    const res = await api.post('/login', {
       email: email.value,
       password: password.value,
     })
-    localStorage.setItem('token', response.data.access_token)
-    error.value = ''
-    router.push('/dashboard')
+
+    localStorage.setItem('token', res.data.access_token)
+
+    const profileCheck = await api.get('/profile/company', {
+      headers: { Authorization: `Bearer ${res.data.access_token}` }
+    })
+
+    toast.success('Connexion réussie !')
+
+    if (profileCheck.data.exists) {
+      router.push('/dashboard')
+    } else {
+      router.push('/complete-profile')
+    }
+
   } catch (err) {
-    error.value = 'Identifiants invalides'
+    console.error(err)
+    toast.error = "Identifiants invalides"
   }
+}
+
+const loginWithGoogle = () => {
+  window.location.href = 'http://localhost:8000/auth/google'
 }
 </script>

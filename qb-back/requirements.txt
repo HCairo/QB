@@ -12,3 +12,6 @@ argon2-cffi
 python-jose[cryptography]
 stripe
 python-dotenv
+Authlib
+httpx
+itsdangerous

@@ -37,6 +37,9 @@
           >
             S'inscrire
           </button>
+          <button @click="registerWithGoogle" class="w-full bg-red-500 text-white px-4 py-2 rounded mt-4">
+          🖥️ S'inscrire avec Google
+          </button>
           <p v-if="error" class="text-red-600">{{ error }}</p>
         </form>
       </div>
@@ -53,14 +56,22 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../utils/api'
+import { useToast } from 'vue-toastification'
 
 const email = ref('')
 const password = ref('')
 const error = ref('')
 const router = useRouter()
 
+const toast = useToast()
+
 const register = async () => {
   try {
+    if (!email.value || !password.value) {
+      toast.error("Veuillez remplir tous les champs")
+      return
+    }
+
     await api.post('/users', {
       email: email.value,
       password: password.value,
@@ -72,11 +83,26 @@ const register = async () => {
     })
 
     localStorage.setItem('token', res.data.access_token)
-    error.value = ''
-    router.push('/dashboard')
+
+    const profileCheck = await api.get('/profile/company', {
+      headers: { Authorization: `Bearer ${res.data.access_token}` }
+    })
+
+    toast.success('Inscription réussie !')
+
+    if (profileCheck.data.exists) {
+      router.push('/dashboard')
+    } else {
+      router.push('/complete-profile')
+    }
+
   } catch (err) {
     console.error(err)
-    error.value = "Impossible de s'inscrire"
+    toast.error("Erreur lors de l'inscription")
   }
+}
+
+const registerWithGoogle = () => {
+  window.location.href = 'http://localhost:8000/auth/google'
 }
 </script>

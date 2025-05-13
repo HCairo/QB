@@ -4,7 +4,7 @@ from app.schemas.user import UserIn, UserOut
 from app.schemas.invoice import InvoiceIn, InvoiceOut, InvoiceUpdate
 from app.security.password import verify_password
 from app.crud.operations import create_user, create_invoice, get_invoices_by_user
-from app.db.models import get_user_by_email, invoices
+from app.db.models import get_user_by_email, invoices, companies
 from app.db.database import database
 from app.security.auth import create_access_token, get_current_user
 from app.config import stripe
@@ -91,3 +91,33 @@ async def create_checkout_session():
 
     except stripe_lib.error.StripeError as e:
         raise HTTPException(status_code=400, detail=f"Stripe Error: {e.user_message}")
+    
+@router.post("/profile/company")
+async def save_company_info(data: dict, current_user: dict = Depends(get_current_user)):
+    query = companies.insert().values(
+        user_id=current_user["id"],
+        company_name=data["company_name"],
+        siret=data.get("siret"),
+        sector=data.get("sector")
+    )
+    await database.execute(query)
+    return {"message": "Profil entreprise enregistré"}
+
+# 🚀 Sauvegarde du profil entreprise
+@router.post("/profile/company")
+async def save_company_info(data: dict, current_user: dict = Depends(get_current_user)):
+    query = companies.insert().values(
+        user_id=current_user["id"],
+        company_name=data["company_name"],
+        siret=data.get("siret"),
+        sector=data.get("sector")
+    )
+    await database.execute(query)
+    return {"message": "Profil entreprise enregistré"}
+
+# ✅ Vérification si le profil entreprise existe
+@router.get("/profile/company")
+async def check_company_profile(current_user: dict = Depends(get_current_user)):
+    query = companies.select().where(companies.c.user_id == current_user["id"])
+    company = await database.fetch_one(query)
+    return {"exists": bool(company)}

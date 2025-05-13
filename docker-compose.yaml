@@ -1,15 +1,25 @@
-version: "3.9"
+version: "3.8"
+
 services:
-  app:
-    build: .
+  backend:
+    build:
+      context: ./qb-back
     ports:
       - "8000:8000"
     volumes:
-      - ./app:/code/app
+      - ./qb-back/app:/code/app
     env_file:
-      - .env
+      - ./qb-back/.env
     depends_on:
       - db
+
+  frontend:
+    build:
+      context: ./qb-front
+    ports:
+      - "5173:5173"
+    env_file:
+      - ./qb-front/.env
 
   db:
     image: postgres:15

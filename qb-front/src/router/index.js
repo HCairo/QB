@@ -7,6 +7,8 @@ import Layout from '../layout/Layout.vue'
 import CreateInvoice from '../pages/CreateInvoice.vue'
 import InvoiceList from '../pages/InvoiceList.vue'
 import StripePayment from '../pages/StripePayment.vue'
+import OauthSuccess from '../pages/OauthSuccess.vue'
+import CompleteProfile from '../pages/CompleteProfile.vue'
 
 const isAuthenticated = () => !!localStorage.getItem('token')
 
@@ -25,12 +27,20 @@ const routes = [
       if (isAuthenticated()) return '/'
     }
   },
+  { 
+    path: '/oauth-success',
+    component: OauthSuccess 
+  },
   {
     path: '/register',
     component: Register,
     beforeEnter: () => {
       if (isAuthenticated()) return '/'
     }
+  },
+  { 
+    path: '/complete-profile', 
+    component: CompleteProfile 
   },
   {
     path: '/dashboard',
